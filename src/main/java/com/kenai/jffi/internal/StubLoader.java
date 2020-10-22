@@ -396,6 +396,9 @@ public class StubLoader {
     } 
 
     private static void loadFromJar(File tmpDirFile) throws IOException, LinkageError {
+        /**
+         * 原始逻辑为根据 cpu 架构从 jar 包中解出特定执行文件，但当 tmp 目录无法挂载为执行权限时，load 会出错
+         * 将当前逻辑修改为预先将特定平台的 so、dll 文件在可执行目录中， load 时直接访问固定目录的文件。
         InputStream is = getStubLibraryStream();
         File dstFile;
 
@@ -424,10 +427,11 @@ public class StubLoader {
         } finally {
             is.close();
         }
-
+         **/
         try {
-            System.load(dstFile.getAbsolutePath());
-            dstFile.delete();
+            //TODO user logger here
+            System.out.println("Loading native library from '/opt/cas/datacollect-7.6.2/tmpdir/libjffi-1.2.so' make sure this file is executable");
+            System.load("/opt/cas/datacollect-7.6.2/tmpdir/libjffi-1.2.so");
         } catch (UnsatisfiedLinkError ule) {
             // If we get here it means the file wrote to temp ok but can't be loaded from there.
             throw tempLoadError(ule);
